@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <UserSecretsId>66a737a1-3df7-4480-9e64-8b243a9bf963</UserSecretsId>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OData" Version="8.0.0-preview3" />
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="5.0.2" />
+    <PackageReference Include="Microsoft.Data.OData" Version="5.8.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="5.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.2" />
+    <PackageReference Include="MSTest.TestFramework" Version="2.2.0-preview-20201126-03" />
+  </ItemGroup>
+
+
+</Project>
