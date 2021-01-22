@@ -15,6 +15,7 @@ namespace OdataAPI.ERPNext.Customer
     public class CustomerRoot
     {
         [Key]
+        public string customerid { get; set; }
         public string name { get; set; }
         public string creation { get; set; }
         public string modified { get; set; }
