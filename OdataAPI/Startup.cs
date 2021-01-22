@@ -23,6 +23,9 @@ using OdataAPI.Controllers;
 using OdataAPI.Data;
 using Microsoft.OData;
 using Microsoft.OData.ModelBuilder;
+using System.Net.Http;
+using System.Net;
+using OdataAPI.ERPNext.Customer;
 
 namespace OdataAPI
 {
@@ -52,7 +55,6 @@ namespace OdataAPI
                         .AllowAnyOrigin()
                         .AllowAnyHeader()
                         .AllowAnyMethod()
-                      //  .AllowCredentials()
                         );
 
                 options.DefaultPolicyName = "AllowAllOrigins";
@@ -63,6 +65,16 @@ namespace OdataAPI
             services.AddOData(opt => opt.Count().Filter().Expand().Select().OrderBy().SetMaxTop(20)
                 .AddModel("odata", GetEdmModel(), builder => builder.AddService<ODataBatchHandler, DefaultODataBatchHandler>(Microsoft.OData.ServiceLifetime.Singleton))
                 );
+
+            services.AddHttpContextAccessor();
+
+            services.AddHttpClient("erpnext", c =>
+            {
+                c.BaseAddress = new Uri("http://77.55.214.237/");
+                c.DefaultRequestHeaders.Add("Accept", "application/json");
+                c.DefaultRequestHeaders.Add("Authorization", "token 7cfc523d5450953:f8b5097c1927826");
+            });
+            //.AddTransientHttpErrorPolicy(p => p.RetryAsync(1)); ;
 
         }
 
@@ -96,63 +108,24 @@ namespace OdataAPI
 
             app.UseCors();
 
-            //app.UseMvc(routes =>
-            //{
-            //    routes.Select().Expand().Filter().OrderBy().MaxTop(null).Count().EnableContinueOnErrorHeader();
-            //    routes.MapODataServiceRoute("odata", "odata", GetEdmModel(), new DefaultODataBatchHandler());
-            //    routes.EnableDependencyInjection();
-            //});
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
-
-            using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
-            {
-                var db = serviceScope.ServiceProvider.GetRequiredService<TestDbContext>();
-
-                if (db.Database.EnsureCreated())
-                {
-                    if (!db.Suppliers.Any())
-                    {
-                        db.Suppliers.AddRange(new List<Supplier> {
-                        new Supplier { Id = 1, Name = "Stonka", Products =  new List<Product> {CreateNewProduct(1,"Cola", 130, "drink",1), CreateNewProduct(2,"Fanta", 140, "drink", 1) } },
-                        new Supplier { Id = 2, Name = "Biedronka", Products =  new List<Product> {CreateNewProduct(3,"Pepsi", 130, "drink",2), CreateNewProduct(4,"Sprajt", 40, "drink", 2) } },
-
-                         });
-                        db.SaveChanges();
-                    }
-                }
-            }
-
 
         }
 
         IEdmModel GetEdmModel()
         {
             var odataBuilder = new ODataConventionModelBuilder();
-            odataBuilder.EntitySet<Product>("Products"); 
-            odataBuilder.EntitySet<Supplier>("Suppliers");
+            odataBuilder.Namespace = "ErpNextService";
+            odataBuilder.EntitySet<CustomerRoot>("Customer");
 
-            odataBuilder.Namespace = "ProductService";
-            odataBuilder.EntityType<Product>().Action("Rate").Parameter<int>("Rating");
-            odataBuilder.EntityType<Product>().Collection.Function("MostExpensive").Returns<double>();
 
             return odataBuilder.GetEdmModel();
         }
 
-        public static Product CreateNewProduct(int id,string name, decimal price, string categ, int SupplierId)
-        {
-            return new Product
-            {
-                Id = id,
-                Name = name,
-                Price = price,
-                Category = categ,
-                SupplierId = SupplierId
-            };
-        }
+  
 
     }
 }
