@@ -40,12 +40,12 @@ namespace OdataAPI.Controllers
             return _customer.CustomerGet();
         }
 
-        //[EnableQuery]
-        //public SingleResult<Product> Get([FromODataUri] int key)
-        //{
-        //    IQueryable<Product> result = db.Products.Where(p => p.Id == key);
-        //    return SingleResult.Create(result);
-        //}
+        [EnableQuery]
+        public SingleResult<CustomerSingleRoot> Get([FromODataUri] string key)
+        {
+            IQueryable<CustomerSingleRoot> result = _customer.GetCustomerById(key).Result;
+            return SingleResult.Create(result);
+        }
 
 
     }

@@ -72,7 +72,7 @@ namespace OdataAPI
             {
                 c.BaseAddress = new Uri("http://77.55.214.237/");
                 c.DefaultRequestHeaders.Add("Accept", "application/json");
-                c.DefaultRequestHeaders.Add("Authorization", "token 7cfc523d5450953:f8b5097c1927826");
+                c.DefaultRequestHeaders.Add("Authorization", "token 7d3713286bde8ff:0e52555369a84be");
             });
             //.AddTransientHttpErrorPolicy(p => p.RetryAsync(1)); ;
 

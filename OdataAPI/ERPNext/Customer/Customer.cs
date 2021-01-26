@@ -52,5 +52,37 @@ namespace OdataAPI.ERPNext.Customer
 
             return _null.data.AsQueryable();
         }
+
+        public async Task<IQueryable<CustomerSingleRoot>>GetCustomerById(string Id)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, "/api/resource/Customer/"+Id+"?fields=[\"*\"]");
+
+            var client = _clientFactory.CreateClient("erpnext");
+
+            var response = await client.SendAsync(request);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseSting = await response.Content.ReadAsStringAsync();
+
+                try
+                {
+                    var json = JsonConvert.DeserializeObject<CustomerSingleModel>(responseSting);
+                    var array = new CustomerSingleRoot[] { json.data };
+                    return array.AsQueryable() ;
+                }
+                catch (JsonReaderException ex)
+                {
+                    _logger.LogError("Invalid JSON." + ex.Message);
+
+                }
+
+            }
+
+            var _null = new CustomerSingleRoot[] { } ;
+            _logger.LogWarning("No data.");
+
+            return _null.AsQueryable();
+        }
     }
 }
