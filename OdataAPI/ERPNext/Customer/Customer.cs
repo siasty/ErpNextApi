@@ -117,5 +117,94 @@ namespace OdataAPI.ERPNext.Customer
             return _null;
         }
 
+        public async Task<CustomerRoot> UpdateCystomer(CustomerRoot customer)
+        {
+            var ItemJson = new StringContent(JsonConvert.SerializeObject(customer), Encoding.UTF8, "application/json");
+
+            var client = _clientFactory.CreateClient("erpnext");
+
+            using var response = await client.PutAsync("/api/resource/Customer/"+customer.name, ItemJson);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseSting = await response.Content.ReadAsStringAsync();
+
+                try
+                {
+                    var json = JsonConvert.DeserializeObject<CustomerSingleModel>(responseSting);
+                    return json.data;
+                }
+                catch (JsonReaderException ex)
+                {
+                    _logger.LogError("Invalid JSON." + ex.Message);
+
+                }
+
+            }
+
+            var _null = new CustomerRoot { };
+            _logger.LogWarning("No data.");
+
+            return _null;
+        }
+
+        public async Task<bool> RemoveCystomer(string key)
+        {
+
+            var client = _clientFactory.CreateClient("erpnext");
+
+            using var response = await client.DeleteAsync("/api/resource/Customer/" + key);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+
+        public async Task<bool> CustomerExists(string Id)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, "/api/resource/Customer/" + Id + "?fields=[\"name\"]");
+
+            var client = _clientFactory.CreateClient("erpnext");
+
+            var response = await client.SendAsync(request);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseSting = await response.Content.ReadAsStringAsync();
+
+                try
+                {
+                    var json = JsonConvert.DeserializeObject<CustomerSingleModel>(responseSting);
+                    
+                    if(json.data.name.Contains(Id))
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+
+                }
+                catch (JsonReaderException ex)
+                {
+                    _logger.LogError("Invalid JSON." + ex.Message);
+
+                }
+
+            }
+
+            _logger.LogWarning("No data.");
+
+            return false;
+        }
+   
+        
     }
 }
