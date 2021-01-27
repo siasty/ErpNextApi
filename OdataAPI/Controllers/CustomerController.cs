@@ -34,6 +34,8 @@ namespace OdataAPI.Controllers
             _customer = new Customer(_clientFactory,_logger);
         }
 
+        #region Get Customer
+
         [EnableQuery]
         public Task<IQueryable<CustomerRoot>> Get()
         {
@@ -41,12 +43,34 @@ namespace OdataAPI.Controllers
         }
 
         [EnableQuery]
-        public SingleResult<CustomerSingleRoot> Get([FromODataUri] string key)
+        public SingleResult<CustomerRoot> Get([FromODataUri] string key)
         {
-            IQueryable<CustomerSingleRoot> result = _customer.GetCustomerById(key).Result;
+            IQueryable<CustomerRoot> result = _customer.GetCustomerById(key).Result;
             return SingleResult.Create(result);
         }
+        
+        #endregion
 
+        #region Create Customer
 
+        public async Task<IActionResult> Post([FromBody] CustomerRoot customer)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var result = await _customer.CreateCystomer(customer);
+
+            if (result != null)
+            {
+                _logger.LogInformation($"Customer: {result.name} created.");
+
+            }
+            return Created(result); 
+
+        }
+
+        #endregion
     }
 }

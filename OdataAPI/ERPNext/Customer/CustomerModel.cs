@@ -9,8 +9,12 @@ namespace OdataAPI.ERPNext.Customer
 {
     public class CustomerModel
     {
-        public int? session_expired { get; set; } 
         public CustomerRoot[] data { get; set; }
+    }
+
+    public class CustomerSingleModel
+    {
+        public CustomerRoot data { get; set; }
     }
 
     public class CustomerRoot
@@ -67,30 +71,6 @@ namespace OdataAPI.ERPNext.Customer
         public object _comments { get; set; }
         public object _assign { get; set; }
         public object _liked_by { get; set; }
-    }
-
-    public class CustomerSingleRoot
-    {
-        public string name { get; set; }
-        public string owner { get; set; }
-        public string creation { get; set; }
-        public string modified { get; set; }
-        public string modified_by { get; set; }
-        public int idx { get; set; }
-        public int docstatus { get; set; }
-        public string naming_series { get; set; }
-        public string customer_name { get; set; }
-        public string customer_type { get; set; }
-        public string customer_group { get; set; }
-        public string territory { get; set; }
-        public string tax_id { get; set; }
-        public int so_required { get; set; }
-        public int dn_required { get; set; }
-        public int disabled { get; set; }
-        public int is_internal_customer { get; set; }
-        public string language { get; set; }
-        public int is_frozen { get; set; }
-        public double default_commission_rate { get; set; }
         public string doctype { get; set; }
         public List<object> companies { get; set; }
         public List<object> accounts { get; set; }
@@ -98,10 +78,6 @@ namespace OdataAPI.ERPNext.Customer
         public List<object> sales_team { get; set; }
     }
 
-    public class CustomerSingleModel
-    {
-        public CustomerSingleRoot data { get; set; }
-    }
 
 
 

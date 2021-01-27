@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace OdataAPI.ERPNext.Customer
@@ -53,7 +54,7 @@ namespace OdataAPI.ERPNext.Customer
             return _null.data.AsQueryable();
         }
 
-        public async Task<IQueryable<CustomerSingleRoot>>GetCustomerById(string Id)
+        public async Task<IQueryable<CustomerRoot>>GetCustomerById(string Id)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, "/api/resource/Customer/"+Id+"?fields=[\"*\"]");
 
@@ -68,8 +69,8 @@ namespace OdataAPI.ERPNext.Customer
                 try
                 {
                     var json = JsonConvert.DeserializeObject<CustomerSingleModel>(responseSting);
-                    var array = new CustomerSingleRoot[] { json.data };
-                    return array.AsQueryable() ;
+                    var array = new CustomerRoot[] { json.data };
+                    return array.AsQueryable();
                 }
                 catch (JsonReaderException ex)
                 {
@@ -79,10 +80,42 @@ namespace OdataAPI.ERPNext.Customer
 
             }
 
-            var _null = new CustomerSingleRoot[] { } ;
+            var _null = new CustomerRoot[] { } ;
             _logger.LogWarning("No data.");
 
             return _null.AsQueryable();
         }
+
+        public async Task<CustomerRoot> CreateCystomer(CustomerRoot customer)
+        {
+            var ItemJson = new StringContent(JsonConvert.SerializeObject(customer),Encoding.UTF8, "application/json");
+           
+            var client = _clientFactory.CreateClient("erpnext");
+
+            using var response =    await client.PostAsync("/api/resource/Customer", ItemJson);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseSting = await response.Content.ReadAsStringAsync();
+
+                try
+                {
+                    var json = JsonConvert.DeserializeObject<CustomerSingleModel>(responseSting);
+                    return json.data;
+                }
+                catch (JsonReaderException ex)
+                {
+                    _logger.LogError("Invalid JSON." + ex.Message);
+
+                }
+
+            }
+
+            var _null = new CustomerRoot { };
+            _logger.LogWarning("No data.");
+
+            return _null;
+        }
+
     }
 }
