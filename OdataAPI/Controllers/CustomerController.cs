@@ -72,5 +72,100 @@ namespace OdataAPI.Controllers
         }
 
         #endregion
+
+        #region Update costumer (put,patch)
+        
+        public async Task<IActionResult> Patch([FromODataUri] string key,[FromBody] Delta<CustomerRoot> customer)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var entity = await _customer.GetCustomerById(key);
+            if (entity == null)
+            {
+                return NotFound();
+            }
+            
+            customer.Patch(entity.FirstOrDefault());
+
+            var result = new CustomerRoot();
+            try
+            {
+                result = await _customer.UpdateCystomer(entity.FirstOrDefault());    
+            }
+            catch (Exception ex)
+            {
+                var exists = await _customer.CustomerExists(key);
+                if (!exists)
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    _logger.LogError(ex.Message);
+                    throw;
+                    
+                }
+            }
+            return Updated(result);
+        }
+
+        public async Task<IActionResult> Put([FromODataUri] string key,[FromBody] CustomerRoot update)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            if (key != update.name)
+            {
+                return BadRequest("Not compatible ID: "+key);
+            }
+
+            var result = new CustomerRoot();
+
+            try
+            {
+                result = await _customer.UpdateCystomer(update);
+            }
+            catch (Exception ex)
+            {
+                var exists = await _customer.CustomerExists(key);
+
+                if (!exists)
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    _logger.LogError(ex.Message);
+                    throw;
+                }
+            }
+            return Updated(result);
+        }
+        #endregion
+
+        #region delete customer
+        public async Task<IActionResult> Delete([FromODataUri] string key)
+        {
+            var entity = await _customer.GetCustomerById(key);
+            if (entity == null)
+            {
+                return NotFound();
+            }
+
+            if (await _customer.RemoveCystomer(entity.FirstOrDefault().name))
+            {
+                return StatusCode((int)HttpStatusCode.NoContent);
+            }
+            else
+            {
+                return StatusCode((int)HttpStatusCode.BadRequest);
+            }
+        }
+        #endregion
+
+
     }
 }
